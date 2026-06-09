@@ -56,7 +56,8 @@ node tests/GameLogic.test.js
 ## Resources & Tools Used
 
 ### AI Tools
-- **Claude (Anthropic)** — game mechanic design, GameLogic.js architecture, unit test structure, multiplier formula implementation
+- **Claude (Anthropic)** —  mechanic analysis, architecture guidance, 
+  multiplier formula verification, unit test design
 - **Kiro AI** — code generation, bug fixes, UI iterations
 
 ### References
