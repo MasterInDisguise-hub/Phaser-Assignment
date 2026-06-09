@@ -52,3 +52,25 @@ node tests/GameLogic.test.js
 - `cashOut(state, bet)` — Calculate payout
 - `calcNextMultiplier(prev, axis, state)` — Compute next multiplier
 - `generateLaserSequence(state)` — Preview full random sequence (for testing)
+
+## Resources & Tools Used
+
+### AI Tools
+- **Claude (Anthropic)** — game mechanic design, GameLogic.js architecture, unit test structure, multiplier formula implementation
+- **Kiro AI** — code generation, bug fixes, UI iterations
+
+### References
+- [death.fun/laser](https://death.fun/laser) — reference game (mechanic analysis)
+- [Phaser 3 Docs](https://newdocs.phaser.io/docs/3.60.0) — Phaser 3 API reference
+- [Phaser 3 CDN](https://cdnjs.cloudflare.com/ajax/libs/phaser/3.60.0/phaser.min.js) — via cdnjs
+- [Mulberry32 PRNG](https://github.com/bryc/code/blob/master/jshash/PRNGs.md) — seeded RNG for provably fair sequence
+- [Web Audio API MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) — procedural sound effects
+- [Vercel Docs](https://vercel.com/docs) — deployment
+
+## Time Spent
+
+~60 minutes total:
+- 10 min — reference game analysis + mechanic breakdown
+- 15 min — GameLogic.js + unit tests
+- 25 min — Phaser UI, animations, sounds, bug fixes
+- 10 min — responsive fixes, polish, deployment
