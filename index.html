@@ -70,6 +70,7 @@
             position: relative;
             min-height: 0;
             overflow: hidden;
+            padding-bottom: 70px;
         }
 
         #bottom-panel {
@@ -77,11 +78,15 @@
             justify-content: center;
             align-items: center;
             gap: 30px;
-            padding: 12px 20px;
-            background: #111;
+            padding: 10px 20px;
+            background: #0a0a0a;
             border-top: 2px solid #ff0033;
             min-height: 60px;
-            flex-shrink: 0;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
         }
 
         #multiplier-display {
@@ -310,6 +315,7 @@
             #header .balance { font-size: 0.9em; }
             #header .how-to-play { font-size: 0.8em; }
             #main-container { height: calc(100vh - 44px); }
+            #phaser-container { max-height: calc(100dvh - 120px); padding-bottom: 70px; }
             #bottom-panel { gap: 10px; padding: 8px 10px; min-height: 50px; }
             #multiplier-display { font-size: 1em; }
             #eth-value-display { font-size: 0.9em; }
