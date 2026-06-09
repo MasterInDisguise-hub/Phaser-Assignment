@@ -1,0 +1,12 @@
+{
+  "name": "laser-party",
+  "version": "1.0.0",
+  "description": "☠ LASER PARTY - Phaser 3 grid betting game",
+  "main": "src/GameLogic.js",
+  "scripts": {
+    "test": "node tests/GameLogic.test.js",
+    "start": "npx http-server . -p 8080 -o"
+  },
+  "keywords": ["phaser", "game", "betting", "laser"],
+  "license": "MIT"
+}

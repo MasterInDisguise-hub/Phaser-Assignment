@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>☠ LASER PARTY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+        }
+
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: #111;
+            border-bottom: 2px solid #ff0033;
+            height: 50px;
+            z-index: 100;
+            position: relative;
+        }
+
+        #header .logo {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #ff0033;
+            text-shadow: 0 0 10px #ff0033;
+        }
+
+        #header .balance {
+            font-size: 1.1em;
+            color: #0f0;
+        }
+
+        #header .how-to-play {
+            cursor: pointer;
+            color: #aaa;
+            text-decoration: underline;
+            font-size: 0.9em;
+        }
+
+        #main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+            width: 100vw;
+        }
+
+        #game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            min-width: 0;
+        }
+
+        #phaser-container {
+            flex: 1;
+            position: relative;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #bottom-panel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            padding: 12px 20px;
+            background: #111;
+            border-top: 2px solid #ff0033;
+            min-height: 60px;
+            flex-shrink: 0;
+        }
+
+        #multiplier-display {
+            font-size: 1.3em;
+            color: #ff0;
+            text-shadow: 0 0 8px #ff0;
+        }
+
+        #eth-value-display {
+            font-size: 1.1em;
+            color: #0f0;
+        }
+
+        #cashout-btn {
+            display: none;
+            padding: 10px 24px;
+            background: #0f0;
+            color: #000;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        #cashout-btn:hover {
+            background: #0c0;
+            box-shadow: 0 0 15px #0f0;
+        }
+
+        #sidebar {
+            width: 180px;
+            background: #111;
+            border-left: 2px solid #333;
+            padding: 15px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        #sidebar h3 {
+            color: #aaa;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+            font-size: 0.85em;
+        }
+
+        .history-item .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .history-item .dot.win { background: #0f0; }
+        .history-item .dot.bust { background: #f00; }
+
+        .history-item .label {
+            color: #ccc;
+        }
+
+        .history-item .label.win { color: #0f0; }
+        .history-item .label.bust { color: #f00; }
+
+        /* Bet Overlay */
+        #bet-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+        }
+
+        #bet-overlay h2 {
+            color: #ff0033;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #ff0033;
+        }
+
+        #bet-overlay input {
+            width: 200px;
+            padding: 10px;
+            font-size: 1.1em;
+            background: #222;
+            border: 2px solid #ff0033;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        #bet-overlay button {
+            padding: 12px 30px;
+            background: #ff0033;
+            color: #fff;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        #bet-overlay button:hover {
+            background: #cc0029;
+            box-shadow: 0 0 15px #ff0033;
+        }
+
+        /* Result Overlay */
+        #result-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            background: rgba(0,0,0,0.9);
+        }
+
+        #result-overlay.bust-screen {
+            animation: shakeScreen 0.5s ease;
+        }
+
+        #result-overlay .skull {
+            font-size: 6em;
+            animation: pulse 1s infinite;
+        }
+
+        #result-overlay .result-text {
+            font-size: 2em;
+            margin: 15px 0;
+        }
+
+        #result-overlay .result-amount {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+        }
+
+        #result-overlay button {
+            padding: 12px 30px;
+            background: #ff0033;
+            color: #fff;
+            border: none;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        #result-overlay button:hover {
+            box-shadow: 0 0 15px #ff0033;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        @keyframes shakeScreen {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-10px, 5px); }
+            40% { transform: translate(10px, -5px); }
+            60% { transform: translate(-5px, 10px); }
+            80% { transform: translate(5px, -10px); }
+        }
+
+        /* How to play modal */
+        #htp-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        #htp-modal .modal-content {
+            background: #1a1a1a;
+            border: 2px solid #ff0033;
+            padding: 30px;
+            max-width: 500px;
+            border-radius: 8px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        #htp-modal h2 { color: #ff0033; margin-bottom: 15px; }
+        #htp-modal p { color: #ccc; line-height: 1.6; margin-bottom: 10px; }
+        #htp-modal .close-btn {
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #666;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            border-radius: 4px;
+        }
+
+        /* Responsive breakpoints */
+        @media (max-width: 768px) {
+            #sidebar { display: none; }
+            #header { padding: 8px 12px; height: 44px; }
+            #header .logo { font-size: 1em; }
+            #header .balance { font-size: 0.9em; }
+            #header .how-to-play { font-size: 0.8em; }
+            #main-container { height: calc(100vh - 44px); }
+            #bottom-panel { gap: 10px; padding: 8px 10px; min-height: 50px; }
+            #multiplier-display { font-size: 1em; }
+            #eth-value-display { font-size: 0.9em; }
+            #cashout-btn { padding: 8px 16px; font-size: 0.9em; }
+            #bet-overlay h2 { font-size: 1.3em; }
+            #bet-overlay input { width: 160px; padding: 8px; }
+            #bet-overlay button { padding: 10px 20px; font-size: 1em; }
+        }
+
+        @media (min-width: 769px) {
+            #game-area {
+                /* On desktop, game area takes majority of space, sidebar is fixed */
+                flex: 1;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            #sidebar { width: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div class="logo">☠ LASER PARTY</div>
+        <div class="balance">Balance: <span id="balance-display">10.0000</span> ETH</div>
+        <div style="display:flex;align-items:center;gap:15px;">
+            <button id="mute-btn" title="Toggle sound" style="background:none;border:none;color:#aaa;font-size:1.3em;cursor:pointer;">🔊</button>
+            <div class="how-to-play" id="htp-btn">HOW TO PLAY</div>
+        </div>
+    </div>
+
+    <div id="main-container">
+        <div id="game-area">
+            <div id="phaser-container">
+                <!-- Bet Overlay -->
+                <div id="bet-overlay">
+                    <h2>PLACE YOUR BET</h2>
+                    <input type="number" id="bet-input" placeholder="ETH amount" step="0.01" min="0.01" value="0.10">
+                    <button id="place-bet-btn">Place Bet</button>
+                </div>
+
+                <!-- Result Overlay -->
+                <div id="result-overlay">
+                    <div class="skull"></div>
+                    <div class="result-text"></div>
+                    <div class="result-amount"></div>
+                    <button id="play-again-btn">PLAY AGAIN</button>
+                </div>
+            </div>
+
+            <div id="bottom-panel">
+                <div id="multiplier-display">1.00x</div>
+                <div id="eth-value-display">0.0000 ETH</div>
+                <button id="cashout-btn">CASH OUT</button>
+            </div>
+        </div>
+
+        <div id="sidebar">
+            <h3>Last 10 Rounds</h3>
+            <div id="history"></div>
+        </div>
+    </div>
+
+    <!-- How To Play Modal -->
+    <div id="htp-modal">
+        <div class="modal-content">
+            <h2>HOW TO PLAY</h2>
+            <p>1. Enter your ETH bet and click "Place Bet".</p>
+            <p>2. Click any cell on the grid to place your orb.</p>
+            <p>3. A laser fires along a random row or column.</p>
+            <p>4. If the laser hits your orb — BUST! You lose your bet.</p>
+            <p>5. If you survive, the row/column is removed. Your multiplier increases.</p>
+            <p>6. Choose: CASH OUT to collect winnings, or pick a new cell on the shrinking grid for a higher multiplier.</p>
+            <p>The grid shrinks each round. Higher risk = higher reward!</p>
+            <button class="close-btn" id="htp-close">CLOSE</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+    <script src="src/SoundManager.js"></script>
+    <script src="src/GameLogic.js"></script>
+    <script src="src/GameScene.js"></script>
+    <script>
+        // Initialize Phaser using window dimensions for proper canvas sizing
+        const phaserContainer = document.getElementById('phaser-container');
+
+        const config = {
+            type: Phaser.AUTO,
+            parent: 'phaser-container',
+            width: window.innerWidth,
+            height: window.innerHeight,
+            backgroundColor: '#0a0a0a',
+            scene: GameScene,
+            scale: {
+                mode: Phaser.Scale.RESIZE,
+                autoCenter: Phaser.Scale.CENTER_BOTH,
+                width: '100%',
+                height: '100%'
+            }
+        };
+
+        const game = new Phaser.Game(config);
+
+        // ===== Single source of truth for balance =====
+        let balance = 10.0;
+        let currentBet = 0;
+        let gameState = null;
+        let roundHistory = [];
+
+        // DOM references
+        const balanceEl = document.getElementById('balance-display');
+        const betOverlay = document.getElementById('bet-overlay');
+        const resultOverlay = document.getElementById('result-overlay');
+        const betInput = document.getElementById('bet-input');
+        const placeBetBtn = document.getElementById('place-bet-btn');
+        const cashoutBtn = document.getElementById('cashout-btn');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const multiplierEl = document.getElementById('multiplier-display');
+        const ethValueEl = document.getElementById('eth-value-display');
+        const historyEl = document.getElementById('history');
+        const htpBtn = document.getElementById('htp-btn');
+        const htpModal = document.getElementById('htp-modal');
+        const htpClose = document.getElementById('htp-close');
+        const muteBtn = document.getElementById('mute-btn');
+
+        // ===== Mute button logic =====
+        function updateMuteBtn() {
+            if (window._soundManager) {
+                muteBtn.textContent = window._soundManager.muted ? '🔇' : '🔊';
+            }
+        }
+
+        muteBtn.addEventListener('click', function () {
+            if (window._soundManager) {
+                window._soundManager.resume();
+                window._soundManager.toggleMute();
+                updateMuteBtn();
+            }
+        });
+
+        // Update mute button once SoundManager is created (after Phaser scene init)
+        setTimeout(updateMuteBtn, 500);
+
+        // ===== BUG 4 FIX: All balance updates go through this single function =====
+        function updateBalance() {
+            balanceEl.textContent = balance.toFixed(4);
+        }
+
+        function updateMultiplierDisplay() {
+            if (gameState) {
+                const mult = gameState.multiplier;
+                multiplierEl.textContent = mult.toFixed(2) + 'x';
+                ethValueEl.textContent = (currentBet * mult).toFixed(4) + ' ETH';
+            } else {
+                multiplierEl.textContent = '1.00x';
+                ethValueEl.textContent = '0.0000 ETH';
+            }
+        }
+
+        function addHistory(multiplier, won) {
+            roundHistory.unshift({ multiplier: multiplier, won: won });
+            if (roundHistory.length > 10) roundHistory.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            historyEl.innerHTML = roundHistory.map(function (entry) {
+                var dotClass = entry.won ? 'win' : 'bust';
+                var labelText = entry.won ? entry.multiplier.toFixed(2) + 'x' : 'BUST';
+                var labelClass = entry.won ? 'win' : 'bust';
+                return '<div class="history-item">' +
+                    '<span class="dot ' + dotClass + '"></span>' +
+                    '<span class="label ' + labelClass + '">' + labelText + '</span>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function showBetScreen() {
+            betOverlay.style.display = 'flex';
+            resultOverlay.style.display = 'none';
+            resultOverlay.classList.remove('bust-screen');
+            cashoutBtn.style.display = 'none';
+            multiplierEl.textContent = '1.00x';
+            ethValueEl.textContent = '0.0000 ETH';
+        }
+
+        // ===== BUG 3 FIX: "YOU LOST" instead of "YOU DIED" =====
+        function showResult(bust, amount) {
+            resultOverlay.style.display = 'flex';
+            if (bust) {
+                resultOverlay.classList.add('bust-screen');
+                resultOverlay.querySelector('.skull').textContent = '☠';
+                resultOverlay.querySelector('.skull').style.color = '#ff0033';
+                resultOverlay.querySelector('.result-text').textContent = 'YOU LOST';
+                resultOverlay.querySelector('.result-text').style.color = '#ff0033';
+                resultOverlay.querySelector('.result-amount').textContent = '-' + amount.toFixed(4) + ' ETH';
+                resultOverlay.querySelector('.result-amount').style.color = '#ff0033';
+            } else {
+                resultOverlay.classList.remove('bust-screen');
+                resultOverlay.querySelector('.skull').textContent = '✓';
+                resultOverlay.querySelector('.skull').style.color = '#0f0';
+                resultOverlay.querySelector('.result-text').textContent = 'CASHED OUT';
+                resultOverlay.querySelector('.result-text').style.color = '#0f0';
+                resultOverlay.querySelector('.result-amount').textContent = '+' + amount.toFixed(4) + ' ETH';
+                resultOverlay.querySelector('.result-amount').style.color = '#0f0';
+            }
+        }
+
+        // ===== Event Listeners =====
+
+        placeBetBtn.addEventListener('click', function () {
+            const bet = parseFloat(betInput.value);
+            if (isNaN(bet) || bet <= 0 || bet > balance) {
+                betInput.style.borderColor = '#ff0';
+                setTimeout(function () { betInput.style.borderColor = '#ff0033'; }, 500);
+                return;
+            }
+
+            // BUG 4 FIX: Deduct bet immediately from single balance variable
+            currentBet = bet;
+            balance -= currentBet;
+            updateBalance();
+
+            gameState = GameLogic.createGame();
+            betOverlay.style.display = 'none';
+            updateMultiplierDisplay();
+
+            // Tell scene to enter pick phase
+            const scene = game.scene.getScene('GameScene');
+            scene.startPickPhase(gameState);
+        });
+
+        cashoutBtn.addEventListener('click', function () {
+            if (!gameState) return;
+
+            var finalMultiplier = gameState.multiplier;
+            const result = GameLogic.cashOut(gameState, currentBet);
+
+            // BUG 4 FIX: Add payout to single balance variable
+            balance += result.payout;
+            updateBalance();
+
+            // Add to history AFTER round is finalized with the multiplier at cashout
+            addHistory(finalMultiplier, true);
+
+            cashoutBtn.style.display = 'none';
+
+            const scene = game.scene.getScene('GameScene');
+            scene.showCashoutEffect(gameState.orbRow, gameState.orbCol, result.payout);
+
+            setTimeout(function () { showResult(false, result.payout); }, 1200);
+            gameState = null;
+        });
+
+        // ===== BUG 1 FIX: Full reset on Play Again =====
+        playAgainBtn.addEventListener('click', function () {
+            // Hide result overlay completely
+            resultOverlay.style.display = 'none';
+            resultOverlay.classList.remove('bust-screen');
+
+            // Reset the Phaser scene — destroys all objects cleanly
+            const scene = game.scene.getScene('GameScene');
+            scene.resetGrid();
+
+            // Reset game state
+            gameState = null;
+            currentBet = 0;
+
+            // Show bet screen
+            showBetScreen();
+        });
+
+        htpBtn.addEventListener('click', function () { htpModal.style.display = 'flex'; });
+        htpClose.addEventListener('click', function () { htpModal.style.display = 'none'; });
+
+        // Called from GameScene after cell click
+        function onCellPicked(row, col) {
+            if (!gameState) return;
+            gameState.orbRow = row;
+            gameState.orbCol = col;
+
+            // Fire laser after delay
+            const scene = game.scene.getScene('GameScene');
+            scene.disableClicks();
+
+            // Play laser charge sound during warning phase
+            setTimeout(function () {
+                scene.playLaserCharge();
+            }, 400);
+
+            setTimeout(function () {
+                const result = GameLogic.fireNextLaser(gameState);
+                scene.animateLaser(result.axis, result.index, result.hit, function () {
+                    if (result.hit) {
+                        // BUST — balance already deducted at bet time
+                        // Capture multiplier at bust (the multiplier before this round)
+                        var bustMultiplier = gameState ? gameState.multiplier : 1.0;
+                        addHistory(bustMultiplier, false);
+                        scene.showBustEffect(row, col);
+                        setTimeout(function () { showResult(true, currentBet); }, 1500);
+                        gameState = null;
+                    } else {
+                        // Survived — play survive sound, update state and multiplier display
+                        scene.playSurviveSound();
+                        gameState = result.newState;
+                        updateMultiplierDisplay();
+                        cashoutBtn.style.display = 'inline-block';
+                        scene.updateGridAfterSurvive(gameState);
+                        scene.enableClicks();
+                    }
+                });
+            }, 1000);
+        }
+
+        // Initialize
+        updateBalance();
+        showBetScreen();
+    </script>
+</body>
+</html>
