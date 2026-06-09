@@ -2,6 +2,9 @@
 
 A Phaser 3 grid betting game where you place an orb on a 10×10 grid and survive laser strikes to multiply your ETH.
 
+**Live demo:** https://phaser-assignment.vercel.app/  
+**GitHub:** https://github.com/MasterInDisguise-hub/Phaser-Assignment
+
 ## How to Play
 
 1. Enter your ETH bet and click **Place Bet**
